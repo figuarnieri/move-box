@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .modal {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 598px;
+            height: 182px;
+            background-color: #fff;
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="modal"></div>
+    <script>
+        document.querySelector('.modal').addEventListener('mousedown', (e) => {
+            const { currentTarget } = e;
+            currentTarget.classList.add('mouse-down');
+        });
+        let timer;
+        document.querySelector('.modal').addEventListener('mouseup', (e) => {
+            const { currentTarget } = e;
+            currentTarget.classList.remove('mouse-down');
+            const { left, top, width, height } = currentTarget.getBoundingClientRect();
+            const { innerHeight, innerWidth } = window;
+            const { translate } = currentTarget.style;
+            const [axisX, axisY] = translate.split(' ');
+            const x = Number.parseFloat(axisX) || 0;
+            const y = Number.parseFloat(axisY) || 0;
+            const screenLimitRight = left + width >= innerWidth;
+            const screenLimitLeft = left <= 0;
+            const screenLimitTop = top <= 0;
+            const screenLimitBottom = top + height >= innerHeight;
+            const axis = { x, y };
+            if (screenLimitRight || screenLimitLeft || screenLimitTop || screenLimitBottom) {
+                if (screenLimitRight) {
+                    axis.x = (innerWidth - width) / 2 - 16;
+                }
+                if (screenLimitLeft) {
+                    axis.x = (-(innerWidth - width) / 2) + 16;
+                }
+                if (screenLimitTop) {
+                    axis.y = (-(innerHeight - height) / 2) + 16;
+                }
+                if (screenLimitBottom) {
+                    axis.y = (innerHeight - height) / 2 - 16;
+                }
+                currentTarget.setAttribute(
+                    'style',
+                    `translate: ${axis.x}px ${axis.y}px`
+                )
+            }
+        })
+        document.querySelector('.modal').addEventListener('mousemove', (e) => {
+            const { currentTarget, movementX, movementY } = e;
+            if (currentTarget.classList.contains('mouse-down')) {
+                const { translate } = currentTarget.style;
+                const [axisX, axisY] = translate.split(' ');
+                const x = Number.parseFloat(axisX) || 0;
+                const y = Number.parseFloat(axisY) || 0;
+                currentTarget.setAttribute(
+                    'style',
+                    `translate: ${x + movementX}px ${y + movementY}px`
+                )
+            }
+        });
+        document.querySelector('.modal').addEventListener('mouseleave', (e) => {
+            const { currentTarget } = e;
+            currentTarget.classList.remove('mouse-down');
+        });
+    </script>
+</body>
+
+</html>
